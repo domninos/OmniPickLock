@@ -1,2 +1,9 @@
 # Project exclude paths
 /out/
+.idea/.gitignore
+.idea/artifacts/
+.idea/libraries/
+.idea/misc.xml
+.idea/modules.xml
+PickLock.iml
+.idea/vcs.xml
