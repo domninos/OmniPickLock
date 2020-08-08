@@ -1,0 +1,11 @@
+picklock:
+  name: '&3PickLock'
+  type: 'TRIPWIRE_HOOK'
+  lore:
+    - ' '
+    - "&eUse this to pick lock other people's properties"
+    - ' '
+picklockChance: 20
+countdown: 5
+whitelisted:
+  - 'world,54,34,2'

@@ -1,0 +1,10 @@
+name: OmniPickLock
+main: net.omni.picklock.PickLockPlugin
+version: '1.0'
+author: omni
+depend:
+  - LockettePro
+description: Simple Pick lock plugin.
+commands:
+  picklock:
+    usage: /<command>
