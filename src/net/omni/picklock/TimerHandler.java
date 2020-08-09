@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TimerHandler {
     private final ConcurrentHashMap<Player, Integer> playerPicking = new ConcurrentHashMap<>();
     private final Map<Player, Block> playerBlock = new HashMap<>();
+    private final Map<Player, PickLock> playerPickLock = new HashMap<>();
     private final PickLockPlugin plugin;
 
     public TimerHandler(PickLockPlugin plugin) {
@@ -26,9 +27,10 @@ public class TimerHandler {
 
                 if (entry.getValue() <= 0) {
                     Block block = playerBlock.get(player);
+                    PickLock pickLock = playerPickLock.get(player);
 
-                    if (block != null)
-                        Bukkit.getPluginManager().callEvent(new PickLockEvent(player, block));
+                    if (block != null && pickLock != null)
+                        Bukkit.getPluginManager().callEvent(new PickLockEvent(player, block, pickLock));
 
                     removePlayer(player);
                     continue;
@@ -43,9 +45,10 @@ public class TimerHandler {
         }, 20L, 20L);
     }
 
-    public void addPlayer(Player player, Block block) {
+    public void addPlayer(Player player, Block block, PickLock pickLock) {
         playerPicking.put(player, plugin.getCountdown());
         playerBlock.put(player, block);
+        playerPickLock.put(player, pickLock);
     }
 
     public boolean isPicking(Player player) {
@@ -55,10 +58,12 @@ public class TimerHandler {
     public void removePlayer(Player player) {
         playerPicking.remove(player);
         playerBlock.remove(player);
+        playerPickLock.remove(player);
     }
 
     public void flush() {
         playerPicking.clear();
         playerBlock.clear();
+        playerPickLock.clear();
     }
 }

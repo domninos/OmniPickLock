@@ -10,15 +10,25 @@ import java.util.stream.Collectors;
 
 public class PickLock {
     private final PickLockPlugin plugin;
+    private final int tier;
+    private int chance;
     private Material material;
     private String name;
     private List<String> lore;
     private ItemStack picklock;
 
-    public PickLock(PickLockPlugin plugin) {
+    public PickLock(PickLockPlugin plugin, int tier) {
         this.plugin = plugin;
+        this.tier = tier;
 
-        String path = "picklock.";
+        if (tier < 0 || tier > 3) {
+            plugin.sendConsole("&cTier: " + tier + " is not a valid tier.");
+            return;
+        }
+
+        String path = "picklock." + tier + ".";
+
+        this.chance = plugin.getConfig().getInt(path + "chance");
 
         Material material = Material.getMaterial(plugin.getConfig().getString(path + "type"));
 
@@ -41,10 +51,16 @@ public class PickLock {
 
         ItemStack itemStack = new ItemStack(material);
         ItemMeta meta = itemStack.getItemMeta();
-        meta.setDisplayName(name);
+        meta.setDisplayName(plugin.translate(name + " Tier " + tier));
+
+        lore.add("&aChance: &2" + chance);
+        lore.add(" ");
         meta.setLore(lore.stream().map(l -> plugin.translate(l)).collect(Collectors.toList()));
         itemStack.setItemMeta(meta);
         this.picklock = itemStack;
+
+        plugin.sendConsole("&aLoaded picklock tier " + tier);
+        plugin.sendConsole("&aChance: &2" + chance);
     }
 
     public void give(Player player) {
@@ -79,6 +95,10 @@ public class PickLock {
         return picklock.isSimilar(itemStack);
     }
 
+    public int getChance() {
+        return chance;
+    }
+
     public Material getMaterial() {
         return material;
     }
@@ -89,6 +109,10 @@ public class PickLock {
 
     public List<String> getLore() {
         return lore;
+    }
+
+    public int getTier() {
+        return tier;
     }
 
     public void flush() {

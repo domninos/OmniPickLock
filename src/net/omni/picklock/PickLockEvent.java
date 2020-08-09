@@ -10,10 +10,13 @@ public class PickLockEvent extends Event {
 
     private final Player player;
     private final Block block;
+    private final PickLock pickLock;
 
-    public PickLockEvent(Player player, Block block) {
+    public PickLockEvent(Player player, Block block, PickLock pickLock) {
         this.player = player;
         this.block = block;
+        this.pickLock = pickLock;
+
     }
 
     public Player getPlayer() {
@@ -22,6 +25,10 @@ public class PickLockEvent extends Event {
 
     public Block getBlock() {
         return block;
+    }
+
+    public PickLock getPickLock() {
+        return pickLock;
     }
 
     public static HandlerList getHandlerList() {

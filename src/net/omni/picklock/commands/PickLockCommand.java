@@ -1,5 +1,6 @@
 package net.omni.picklock.commands;
 
+import net.omni.picklock.PickLock;
 import net.omni.picklock.PickLockPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,25 +19,18 @@ public class PickLockCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
-        if (sender instanceof Player) {
-            if (!sender.hasPermission("picklock.use"))
-                return noPerms(sender);
-        }
+        if (!sender.hasPermission("picklock.use"))
+            return noPerms(sender);
 
         if (args.length == 0) {
             sendHelp(sender);
             return true;
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("give")) {
-                if (!(sender instanceof Player)) {
-                    plugin.sendMessage(sender, "&cOnly players can use this command.");
-                    return true;
-                }
-
                 if (!sender.hasPermission("picklock.give"))
                     return noPerms(sender);
 
-                plugin.sendMessage(sender, "&cUsage: /picklock give <player>");
+                plugin.sendMessage(sender, "&cUsage: /picklock give <player> <tier>");
             } else if (args[0].equalsIgnoreCase("door"))
                 plugin.sendMessage(sender, "&cUsage: /picklock door <add|remove>");
             else
@@ -48,15 +42,7 @@ public class PickLockCommand implements CommandExecutor {
                 if (!sender.hasPermission("picklock.give"))
                     return noPerms(sender);
 
-                Player target = Bukkit.getPlayer(args[1]);
-
-                if (target == null) {
-                    plugin.sendMessage(sender, "&cPlayer not found.");
-                    return true;
-                }
-
-                plugin.getPickLock().give(target);
-                return true;
+                plugin.sendMessage(sender, "&cUsage: /picklock give <player> <tier>");
             } else if (args[0].equalsIgnoreCase("door")) {
                 if (!(args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
                     sendHelp(sender);
@@ -103,6 +89,36 @@ public class PickLockCommand implements CommandExecutor {
                 sendHelp(sender);
 
             return true;
+        } else if (args.length == 3) {
+            if (!sender.hasPermission("picklock.give"))
+                return noPerms(sender);
+
+            Player target = Bukkit.getPlayer(args[1]);
+
+            if (target == null) {
+                plugin.sendMessage(sender, "&cPlayer not found.");
+                return true;
+            }
+
+            int tier;
+
+            try {
+                tier = Integer.parseInt(args[2]);
+            } catch (NumberFormatException e) {
+                plugin.sendMessage(sender, "&cTier is not a number!");
+                return true;
+            }
+
+            PickLock pickLock = plugin.getPickLock(tier);
+
+            if (pickLock == null) {
+                plugin.sendConsole("&cPickLock not found.");
+                return true;
+            }
+
+            pickLock.give(target);
+            plugin.sendMessage(sender, "&aSuccessfully given " + target.getName() + " pick lock tier " + tier);
+            return true;
         } else
             sendHelp(sender);
 
@@ -110,7 +126,7 @@ public class PickLockCommand implements CommandExecutor {
     }
 
     private void sendHelp(CommandSender sender) {
-        plugin.sendMessage(sender, "&cUsage: /picklock give <player>");
+        plugin.sendMessage(sender, "&cUsage: /picklock give <player> <tier>");
         plugin.sendMessage(sender, "&cUsage: /picklock door <add|remove>");
     }
 

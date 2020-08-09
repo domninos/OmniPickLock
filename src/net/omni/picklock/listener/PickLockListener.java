@@ -1,6 +1,7 @@
 package net.omni.picklock.listener;
 
 import me.crafter.mc.lockettepro.LocketteProAPI;
+import net.omni.picklock.PickLock;
 import net.omni.picklock.PickLockEvent;
 import net.omni.picklock.PickLockPlugin;
 import org.bukkit.Bukkit;
@@ -45,7 +46,18 @@ public class PickLockListener implements Listener {
         if (item == null)
             return;
 
-        if (!plugin.getPickLock().isPickLock(item))
+        PickLock pickLock;
+
+        if (plugin.getPickLockTier1().isPickLock(item))
+            pickLock = plugin.getPickLockTier1();
+        else if (plugin.getPickLockTier2().isPickLock(item))
+            pickLock = plugin.getPickLockTier2();
+        else if (plugin.getPickLockTier3().isPickLock(item))
+            pickLock = plugin.getPickLockTier3();
+        else
+            pickLock = null;
+
+        if (pickLock == null)
             return;
 
         Player player = event.getPlayer();
@@ -63,7 +75,7 @@ public class PickLockListener implements Listener {
         if (LocketteProAPI.isLocked(block)) {
             if ((LocketteProAPI.isUpDownLockedDoor(block) && !LocketteProAPI.isUserUpDownLockedDoor(block, player))
                     || (LocketteProAPI.isSingleDoorBlock(block) && !LocketteProAPI.isUserSingleBlock(block, null, player))) {
-                plugin.getTimerHandler().addPlayer(player, block);
+                plugin.getTimerHandler().addPlayer(player, block, pickLock);
             }
         }
     }
@@ -78,8 +90,9 @@ public class PickLockListener implements Listener {
     public void onPickLock(PickLockEvent event) {
         Block block = event.getBlock();
         Player player = event.getPlayer();
+        PickLock pickLock = event.getPickLock();
 
-        if (random.nextInt(0, 100) <= plugin.getChance()) {
+        if (random.nextInt(0, 100) <= pickLock.getChance()) {
             if (LocketteProAPI.isUpDownLockedDoor(block)) {
                 Block doorblock = LocketteProAPI.getBottomDoorBlock(block);
 
@@ -94,7 +107,7 @@ public class PickLockListener implements Listener {
             forceOpenDoor(block);
             plugin.sendMessage(player, "&aSuccessfully pick locked.");
         } else {
-            plugin.getPickLock().remove(player);
+            pickLock.remove(player);
             player.playEffect(EntityEffect.SHIELD_BREAK);
             player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BREAK, 1f, 1f);
             plugin.sendMessage(player, "&cPick locking failed!");

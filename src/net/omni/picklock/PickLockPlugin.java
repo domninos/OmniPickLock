@@ -8,9 +8,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class PickLockPlugin extends JavaPlugin {
-    private PickLock pickLock;
-    private int chance;
+    private List<PickLock> pickLocks;
+    private PickLock pickLockTier1;
+    private PickLock pickLockTier2;
+    private PickLock pickLockTier3;
     private int countdown;
     private WhitelistedDoors whitelistedDoors;
     private TimerHandler timerHandler;
@@ -19,19 +24,14 @@ public class PickLockPlugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
-        pickLock = new PickLock(this);
+        pickLockTier1 = new PickLock(this, 1);
+        pickLockTier2 = new PickLock(this, 2);
+        pickLockTier3 = new PickLock(this, 3);
+        pickLocks = Arrays.asList(pickLockTier1, pickLockTier2, pickLockTier3);
+
         whitelistedDoors = new WhitelistedDoors(this);
 
-        sendConsole("&aLoading picklock..");
-        sendConsole("&aType: &2" + pickLock.getMaterial().name());
-        sendConsole("&aName: " + pickLock.getName());
-        sendConsole("&aLore:");
-
-        pickLock.getLore().forEach(this::sendConsole);
-
-        this.chance = getConfig().getInt("picklockChance");
         this.countdown = getConfig().getInt("countdown");
-        sendConsole("&aChance: &2" + chance);
 
         this.timerHandler = new TimerHandler(this);
 
@@ -46,7 +46,8 @@ public class PickLockPlugin extends JavaPlugin {
         Bukkit.getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
         timerHandler.flush();
-        pickLock.flush();
+        pickLocks.forEach(PickLock::flush);
+        pickLocks.clear();
         whitelistedDoors.flush();
         sendConsole("&aSuccessfully disabled OmniPickLock");
     }
@@ -71,12 +72,20 @@ public class PickLockPlugin extends JavaPlugin {
         return ChatColor.translateAlternateColorCodes('&', text);
     }
 
-    public PickLock getPickLock() {
-        return pickLock;
+    public PickLock getPickLock(int tier) {
+        return pickLocks.stream().filter(pickLock -> pickLock.getTier() == tier).findFirst().orElse(null);
     }
 
-    public int getChance() {
-        return chance;
+    public PickLock getPickLockTier1() {
+        return pickLockTier1;
+    }
+
+    public PickLock getPickLockTier2() {
+        return pickLockTier2;
+    }
+
+    public PickLock getPickLockTier3() {
+        return pickLockTier3;
     }
 
     public int getCountdown() {
