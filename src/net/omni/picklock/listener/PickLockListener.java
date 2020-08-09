@@ -5,10 +5,10 @@ import net.omni.picklock.PickLockEvent;
 import net.omni.picklock.PickLockPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,6 +17,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Door;
+import org.bukkit.material.MaterialData;
+import org.bukkit.material.Openable;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -80,19 +83,15 @@ public class PickLockListener implements Listener {
             if (LocketteProAPI.isUpDownLockedDoor(block)) {
                 Block doorblock = LocketteProAPI.getBottomDoorBlock(block);
 
-                if (doorblock.getType() == Material.IRON_DOOR_BLOCK || doorblock.getType() == Material.IRON_TRAPDOOR)
-                    LocketteProAPI.toggleDoor(doorblock, true);
-
                 for (BlockFace blockface : LocketteProAPI.newsfaces) {
                     Block relative = doorblock.getRelative(blockface);
 
                     if (relative.getType() == doorblock.getType())
-                        LocketteProAPI.toggleDoor(relative, true);
+                        forceOpenDoor(relative);
                 }
             }
 
-            LocketteProAPI.toggleDoor(block, true);
-
+            forceOpenDoor(block);
             plugin.sendMessage(player, "&aSuccessfully pick locked.");
         } else {
             plugin.getPickLock().remove(player);
@@ -100,6 +99,19 @@ public class PickLockListener implements Listener {
             player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BREAK, 1f, 1f);
             plugin.sendMessage(player, "&cPick locking failed!");
         }
+    }
+
+    private void forceOpenDoor(Block block) {
+        BlockState blockState = block.getState();
+
+        if (((Door) blockState.getData()).isTopHalf())
+            blockState = block.getRelative(BlockFace.DOWN).getState();
+
+        Openable openable = (Openable) blockState.getData();
+        openable.setOpen(true);
+        blockState.setData((MaterialData) openable);
+
+        blockState.update();
     }
 
     public void register() {

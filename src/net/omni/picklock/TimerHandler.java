@@ -1,6 +1,7 @@
 package net.omni.picklock;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -35,7 +36,8 @@ public class TimerHandler {
 
                 entry.setValue(entry.getValue() - 1);
 
-                player.sendTitle("&cPick locking...", String.valueOf(entry.getValue()), 10, 20, 10);
+                player.sendTitle(ChatColor.RED + "Pick locking...",
+                        ChatColor.GREEN + String.valueOf(entry.getValue()), 10, 20, 10);
                 plugin.sendMessage(player, "&aPick locking...");
             }
         }, 20L, 20L);

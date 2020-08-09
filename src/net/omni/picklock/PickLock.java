@@ -64,7 +64,11 @@ public class PickLock {
                 continue;
 
             if (isPickLock(itemStack)) {
-                player.getInventory().removeItem(itemStack);
+                if (itemStack.getAmount() == 1)
+                    player.getInventory().removeItem(itemStack);
+                else
+                    itemStack.setAmount(itemStack.getAmount() - 1);
+
                 player.updateInventory();
                 break;
             }
