@@ -117,6 +117,9 @@ public class PickLockListener implements Listener {
     private void forceOpenDoor(Block block) {
         BlockState blockState = block.getState();
 
+        if (!(blockState.getData() instanceof Openable))
+            return;
+
         if (blockState.getData() instanceof Door) {
             Door door = (Door) blockState.getData();
 
