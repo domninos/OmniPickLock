@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -46,16 +47,7 @@ public class PickLockListener implements Listener {
         if (item == null)
             return;
 
-        PickLock pickLock;
-
-        if (plugin.getPickLockTier1().isPickLock(item))
-            pickLock = plugin.getPickLockTier1();
-        else if (plugin.getPickLockTier2().isPickLock(item))
-            pickLock = plugin.getPickLockTier2();
-        else if (plugin.getPickLockTier3().isPickLock(item))
-            pickLock = plugin.getPickLockTier3();
-        else
-            pickLock = null;
+        PickLock pickLock = plugin.getPickLock(item);
 
         if (pickLock == null)
             return;
@@ -112,6 +104,27 @@ public class PickLockListener implements Listener {
             player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BREAK, 1f, 1f);
             plugin.sendMessage(player, "&cPick locking failed!");
         }
+    }
+
+    @EventHandler
+    public void onPickLockDrop(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
+
+        if (!plugin.getTimerHandler().isPicking(player))
+            return;
+
+        ItemStack item = event.getItemDrop().getItemStack();
+
+        if (item == null)
+            return;
+
+        PickLock pickLock = plugin.getPickLock(item);
+
+        if (pickLock == null)
+            return;
+
+        event.setCancelled(true);
+        plugin.sendMessage(player, "&cYou cannot drop your pick lock while pick locking");
     }
 
     private void forceOpenDoor(Block block) {

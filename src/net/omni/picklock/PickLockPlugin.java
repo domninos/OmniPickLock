@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
@@ -50,6 +51,19 @@ public class PickLockPlugin extends JavaPlugin {
         pickLocks.clear();
         whitelistedDoors.flush();
         sendConsole("&aSuccessfully disabled OmniPickLock");
+    }
+
+    public PickLock getPickLock(ItemStack item) {
+        PickLock pickLock = null;
+
+        if (getPickLockTier1().isPickLock(item))
+            pickLock = getPickLockTier1();
+        else if (getPickLockTier2().isPickLock(item))
+            pickLock = getPickLockTier2();
+        else if (getPickLockTier3().isPickLock(item))
+            pickLock = getPickLockTier3();
+
+        return pickLock;
     }
 
     public void sendConsole(String message) {
